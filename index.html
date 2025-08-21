@@ -11,67 +11,44 @@
     }
     *{box-sizing:border-box;margin:0;padding:0}
     body{
-      font-family: "Segoe UI", Roboto, Inter, system-ui, -apple-system, sans-serif;
+      font-family:"Segoe UI",Roboto,Inter,system-ui,-apple-system,sans-serif;
       background:var(--bg);color:var(--text);
       min-height:100vh;display:flex;align-items:center;justify-content:center;
     }
-
-    /* Shell */
-    .shell{
-      width:100%;max-width:700px;height:90vh;background:var(--panel);
-      border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,.6);overflow:hidden;
-    }
+    .shell{width:100%;max-width:700px;height:90vh;background:var(--panel);
+      border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,.6);overflow:hidden}
     .hidden{display:none}
-
-    /* Header */
-    .header{
-      background:var(--panel-2);border-bottom:1px solid var(--border);
+    .header{background:var(--panel-2);border-bottom:1px solid var(--border);
       display:flex;align-items:center;justify-content:center;padding:14px 16px;
-      font-weight:700;font-size:18px;letter-spacing:.2px;
-    }
-
-    /* AUTH VIEW */
+      font-weight:700;font-size:18px}
     .auth-wrap{height:calc(100% - 56px);display:flex;align-items:center;justify-content:center;padding:24px}
-    .auth-card{
-      width:100%;max-width:420px;background:#181818;border:1px solid var(--border);
-      border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:14px;
-    }
+    .auth-card{width:100%;max-width:420px;background:#181818;border:1px solid var(--border);
+      border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:14px}
     .field{display:flex;flex-direction:column;gap:6px}
     label{font-size:13px;color:var(--muted)}
     input[type="text"],input[type="password"]{
       padding:14px 16px;background:#1e1e1e;border:1px solid #242424;border-radius:10px;
-      color:var(--text);outline:none;transition:background .2s ease,border .2s ease;
-    }
+      color:var(--text);outline:none}
     input:focus{background:#242424;border-color:#303030}
-    .primary{
-      background:var(--brand);color:#fff;border:none;border-radius:10px;
-      padding:12px 16px;font-weight:700;cursor:pointer
-    }
+    .primary{background:var(--brand);color:#fff;border:none;border-radius:10px;
+      padding:12px 16px;font-weight:700;cursor:pointer}
     .primary:hover{background:var(--brand-2)}
     .status{font-size:13px;min-height:18px}
     .status.err{color:#ff4d4f}
-
-    /* CHAT VIEW */
     .chat-wrap{height:calc(100% - 56px);display:flex;flex-direction:column}
-    .chat-box{
-      flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:12px;
-    }
-    .message{
-      padding:12px 16px;border-radius:18px;max-width:80%;word-wrap:break-word;
-      font-size:15px;line-height:1.4;animation:fadeIn .25s ease;
-    }
-    .user{align-self:flex-end;background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#fff;border-bottom-right-radius:4px}
+    .chat-box{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:12px}
+    .message{padding:12px 16px;border-radius:18px;max-width:80%;word-wrap:break-word;
+      font-size:15px;line-height:1.4;animation:fadeIn .25s ease}
+    .user{align-self:flex-end;background:linear-gradient(135deg,var(--brand),var(--brand-2));
+      color:#fff;border-bottom-right-radius:4px}
     .bot{align-self:flex-start;background:#2a2a2a;color:var(--text);border-bottom-left-radius:4px}
     @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
-
     .input-row{display:flex;gap:10px;padding:12px;background:var(--panel-2);border-top:1px solid var(--border)}
-    .input-row input{
-      flex:1;padding:14px 16px;background:#1e1e1e;border:1px solid #242424;border-radius:10px;color:var(--text);outline:none;
-    }
-    .send{background:var(--brand);color:#fff;border:none;border-radius:10px;padding:0 20px;font-weight:700;cursor:pointer}
+    .input-row input{flex:1;padding:14px 16px;background:#1e1e1e;border:1px solid #242424;
+      border-radius:10px;color:var(--text);outline:none}
+    .send{background:var(--brand);color:#fff;border:none;border-radius:10px;
+      padding:0 20px;font-weight:700;cursor:pointer}
     .send:hover{background:var(--brand-2)}
-
-    /* Mobile full screen */
     @media (max-width:768px){
       .shell{width:100%;height:100svh;height:100dvh;max-width:none;border-radius:0}
       body{align-items:stretch}
@@ -104,95 +81,91 @@
     <div class="chat-wrap">
       <div class="chat-box" id="messages"></div>
       <div class="input-row">
-        <input id="chatInput" type="text" placeholder="Type your message..." onkeydown="if(event.key==='Enter'){sendMessage()}">
+        <input id="chatInput" type="text" placeholder="Type your message..." 
+               onkeydown="if(event.key==='Enter'){sendMessage()}">
         <button class="send" onclick="sendMessage()">Send</button>
       </div>
     </div>
   </div>
 
-  <script>
-    /* ===== Hardcoded creds & webhook ===== */
-    const AUTH_USER = "user"; // ← change
-    const AUTH_PASS = "pass"; // ← change
-    const WEBHOOK_URL = "'https://n8n-1zv5.onrender.com/webhook/a889d2ae-2159-402f-b326-5f61e90f602e/chat'"; // ← use PRODUCTION URL (no UUID)
+<script>
+const AUTH_USER="user", AUTH_PASS="pass";
+const WEBHOOK_URL="https://n8n-1zv5.onrender.com/webhook/a889d2ae-2159-402f-b326-5f61e90f602e/chat";
 
-    /* Boot: add Enter shortcuts + focus username */
-    document.addEventListener("DOMContentLoaded", () => {
-      document.getElementById("loginUser").focus();
-      ["loginUser","loginPass"].forEach(id=>{
-        document.getElementById(id).addEventListener("keydown", e => {
-          if(e.key==="Enter") handleLogin();
-        });
-      });
+document.addEventListener("DOMContentLoaded",()=>{
+  document.getElementById("loginUser").focus();
+  ["loginUser","loginPass"].forEach(id=>{
+    document.getElementById(id).addEventListener("keydown",e=>{
+      if(e.key==="Enter") handleLogin();
+    });
+  });
+});
+
+function handleLogin(){
+  const u=document.getElementById("loginUser").value.trim();
+  const p=document.getElementById("loginPass").value;
+  const status=document.getElementById("loginStatus");
+  if(u===AUTH_USER && p===AUTH_PASS){
+    document.getElementById("authShell").classList.add("hidden");
+    document.getElementById("chatShell").classList.remove("hidden");
+    setTimeout(()=>document.getElementById("chatInput").focus(),50);
+    status.textContent="";
+    appendMessage(`hello ${u}, you are talking to GPT-5 nano`,"bot");
+  }else{
+    status.textContent="Invalid username or password.";
+    status.className="status err";
+  }
+}
+
+function appendMessage(text,who){
+  const box=document.getElementById("messages");
+  const div=document.createElement("div");
+  div.className="message "+(who==="user"?"user":"bot");
+  div.textContent=text;
+  box.appendChild(div);
+  box.scrollTop=box.scrollHeight;
+}
+
+async function sendMessage(){
+  const input=document.getElementById("chatInput");
+  const msg=input.value.trim();
+  if(!msg) return;
+  appendMessage(msg,"user");
+  input.value="";
+
+  const typing=document.createElement("div");
+  typing.className="message bot";
+  typing.textContent="…";
+  const box=document.getElementById("messages");
+  box.appendChild(typing); box.scrollTop=box.scrollHeight;
+
+  try{
+    const res=await fetch(WEBHOOK_URL,{
+      method:"POST",
+      headers:{ "Content-Type":"application/json","Accept":"*/*" },
+      body:JSON.stringify({ chatInput:msg, sessionId:"demo" })
     });
 
-    function handleLogin(){
-      const u = document.getElementById("loginUser").value.trim();
-      const p = document.getElementById("loginPass").value;
-      const status = document.getElementById("loginStatus");
-      if(u === AUTH_USER && p === AUTH_PASS){
-        // show chat
-        document.getElementById("authShell").classList.add("hidden");
-        document.getElementById("chatShell").classList.remove("hidden");
-        setTimeout(()=>document.getElementById("chatInput").focus(), 50);
-        status.textContent = "";
-        // Initial greeting
-        appendMessage(`hello ${u} u talking to gpt 5 nano`, "bot");
+    let reply="";
+    try{
+      if(res.headers.get("content-type")?.includes("application/json")){
+        const j=await res.json();
+        reply=j.reply||j.text||j.message||j.output||
+               (j.data&&(j.data.text||j.data.reply))||
+               JSON.stringify(j);
       }else{
-        status.textContent = "Invalid username or password.";
-        status.className = "status err";
+        reply=await res.text();
       }
-    }
+    }catch{ reply="(Invalid JSON reply)"; }
 
-    function appendMessage(text, who){
-      const box = document.getElementById("messages");
-      const div = document.createElement("div");
-      div.className = "message " + (who==="user"?"user":"bot");
-      div.textContent = text;
-      box.appendChild(div);
-      box.scrollTop = box.scrollHeight;
-    }
-
-    async function sendMessage(){
-      const input = document.getElementById("chatInput");
-      const msg = input.value.trim();
-      if(!msg) return;
-
-      appendMessage(msg, "user");
-      input.value = "";
-
-      // typing indicator
-      const typing = document.createElement("div");
-      typing.className = "message bot";
-      typing.textContent = "…";
-      const box = document.getElementById("messages");
-      box.appendChild(typing);
-      box.scrollTop = box.scrollHeight;
-
-      try{
-        const res = await fetch(WEBHOOK_URL, {
-          method:"POST",
-          mode:"cors",
-          headers:{ "Content-Type":"application/json" },
-          body: JSON.stringify({ text: msg })
-        });
-
-        let data = {};
-        try { data = await res.json(); } catch(_) {}
-
-        typing.remove();
-
-        if(!res.ok){
-          appendMessage(`Error ${res.status}: ${data?.error || "Request failed"}`, "bot");
-          return;
-        }
-
-        appendMessage(data.reply || "No response", "bot");
-      }catch(err){
-        typing.remove();
-        appendMessage("Error: " + err.message, "bot");
-      }
-    }
-  </script>
+    typing.remove();
+    if(!res.ok){ appendMessage(`Error ${res.status}: ${reply}`,"bot"); return; }
+    appendMessage(reply||"No response","bot");
+  }catch(err){
+    typing.remove();
+    appendMessage("Error: "+err.message,"bot");
+  }
+}
+</script>
 </body>
 </html>
