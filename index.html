@@ -42,6 +42,10 @@
     .user{align-self:flex-end;background:linear-gradient(135deg,var(--brand),var(--brand-2));
       color:#fff;border-bottom-right-radius:4px}
     .bot{align-self:flex-start;background:#2a2a2a;color:var(--text);border-bottom-left-radius:4px}
+    .bot h1,.bot h2,.bot h3{margin:6px 0}
+    .bot code{background:#333;padding:2px 4px;border-radius:4px}
+    .bot pre{background:#222;padding:8px;border-radius:8px;overflow-x:auto}
+    .bot ul,.bot ol{margin:6px 0 6px 20px}
     @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
     .input-row{display:flex;gap:10px;padding:12px;background:var(--panel-2);border-top:1px solid var(--border)}
     .input-row input{flex:1;padding:14px 16px;background:#1e1e1e;border:1px solid #242424;
@@ -54,6 +58,8 @@
       body{align-items:stretch}
     }
   </style>
+  <!-- ✅ Add Marked.js for Markdown parsing -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
   <!-- LOGIN -->
@@ -121,7 +127,14 @@ function appendMessage(text,who){
   const box=document.getElementById("messages");
   const div=document.createElement("div");
   div.className="message "+(who==="user"?"user":"bot");
-  div.textContent=text;
+
+  // ✅ For bot messages, parse markdown → HTML
+  if(who==="bot"){
+    div.innerHTML=marked.parse(text);
+  }else{
+    div.textContent=text;
+  }
+
   box.appendChild(div);
   box.scrollTop=box.scrollHeight;
 }
@@ -133,34 +146,38 @@ async function sendMessage(){
   appendMessage(msg,"user");
   input.value="";
 
+  // show typing bubble
   const typing=document.createElement("div");
   typing.className="message bot";
   typing.textContent="…";
   const box=document.getElementById("messages");
-  box.appendChild(typing); box.scrollTop=box.scrollHeight;
+  box.appendChild(typing);
+  box.scrollTop=box.scrollHeight;
 
-  try{
+  try {
     const res=await fetch(WEBHOOK_URL,{
       method:"POST",
-      headers:{ "Content-Type":"application/json","Accept":"*/*" },
+      headers:{ "Content-Type":"application/json","Accept":"application/json" },
       body:JSON.stringify({ chatInput:msg, sessionId:"demo" })
     });
 
     let reply="";
-    try{
-      if(res.headers.get("content-type")?.includes("application/json")){
+    if(res.ok){
+      const ct=res.headers.get("content-type")||"";
+      if(ct.includes("application/json")){
         const j=await res.json();
-        reply=j.reply||j.text||j.message||j.output||
-               (j.data&&(j.data.text||j.data.reply))||
-               JSON.stringify(j);
+        reply=j.reply || j.text || j.message || j.output 
+              || (j.data && (j.data.text || j.data.reply)) 
+              || JSON.stringify(j);
       }else{
         reply=await res.text();
       }
-    }catch{ reply="(Invalid JSON reply)"; }
+    }else{
+      reply=`Error ${res.status} – ${await res.text()}`;
+    }
 
     typing.remove();
-    if(!res.ok){ appendMessage(`Error ${res.status}: ${reply}`,"bot"); return; }
-    appendMessage(reply||"No response","bot");
+    appendMessage(reply || "No response","bot");
   }catch(err){
     typing.remove();
     appendMessage("Error: "+err.message,"bot");
