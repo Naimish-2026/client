@@ -15,13 +15,29 @@
       background:var(--bg);color:var(--text);
       min-height:100vh;display:flex;align-items:center;justify-content:center;
     }
-    .shell{width:100%;max-width:700px;height:90vh;background:var(--panel);
-      border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,.6);overflow:hidden}
+    /* Card-style chat centered */
+    .shell{
+      width:100%;
+      max-width:700px;
+      height:90vh;
+      background:var(--panel);
+      border-radius:14px;
+      box-shadow:0 6px 18px rgba(0,0,0,.6);
+      overflow:hidden;              /* keeps rounded corners clean */
+      display:flex;flex-direction:column;
+    }
     .hidden{display:none}
-    .header{background:var(--panel-2);border-bottom:1px solid var(--border);
-      display:flex;align-items:center;justify-content:center;padding:14px 16px;
-      font-weight:700;font-size:18px}
-    .auth-wrap{height:calc(100% - 56px);display:flex;align-items:center;justify-content:center;padding:24px}
+    .header{
+      background:var(--panel-2);border-bottom:1px solid var(--border);
+      display:flex;align-items:center;justify-content:center;
+      padding:14px 16px;font-weight:700;font-size:18px
+    }
+
+    /* LOGIN */
+    .auth-wrap{
+      flex:1; display:flex; align-items:center; justify-content:center;
+      padding:24px; min-height:0;       /* <-- allow child to shrink/scroll if needed */
+    }
     .auth-card{width:100%;max-width:420px;background:#181818;border:1px solid var(--border);
       border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:14px}
     .field{display:flex;flex-direction:column;gap:6px}
@@ -35,17 +51,51 @@
     .primary:hover{background:var(--brand-2)}
     .status{font-size:13px;min-height:18px}
     .status.err{color:#ff4d4f}
-    .chat-wrap{height:calc(100% - 56px);display:flex;flex-direction:column}
-    .chat-box{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:12px}
+
+    /* CHAT */
+    .chat-wrap{
+      flex:1; display:flex; flex-direction:column;
+      min-height:0;                  /* <-- critical for scroll to work */
+    }
+    .chat-box{
+      flex:1;
+      min-height:0;                  /* <-- critical for scroll to work */
+      overflow-y:auto;
+      -webkit-overflow-scrolling:touch; /* iOS smooth scroll */
+      overscroll-behavior:contain;
+      padding:20px;
+      display:flex; flex-direction:column; gap:12px;
+
+      /* hide scrollbar but keep scroll working */
+      scrollbar-width:none; /* Firefox */
+    }
+    .chat-box::-webkit-scrollbar{ display:none } /* Chrome, Edge, Safari */
+
     .message{padding:12px 16px;border-radius:18px;max-width:80%;word-wrap:break-word;
       font-size:15px;line-height:1.4;animation:fadeIn .25s ease}
     .user{align-self:flex-end;background:linear-gradient(135deg,var(--brand),var(--brand-2));
       color:#fff;border-bottom-right-radius:4px}
     .bot{align-self:flex-start;background:#2a2a2a;color:var(--text);border-bottom-left-radius:4px}
+
+    /* Markdown styling inside bot bubbles */
     .bot h1,.bot h2,.bot h3{margin:6px 0}
     .bot code{background:#333;padding:2px 4px;border-radius:4px}
-    .bot pre{background:#222;padding:8px;border-radius:8px;overflow-x:auto}
+    .bot pre{background:#222;padding:8px;border-radius:8px;overflow-x:auto;white-space:pre}
     .bot ul,.bot ol{margin:6px 0 6px 20px}
+
+    /* Typing bubble animation */
+    .typing{display:flex;gap:4px;align-items:center}
+    .dot{
+      width:6px;height:6px;background:#bbb;border-radius:50%;
+      animation:blink 1.4s infinite both;
+    }
+    .dot:nth-child(2){animation-delay:.2s}
+    .dot:nth-child(3){animation-delay:.4s}
+    @keyframes blink{
+      0%,80%,100%{opacity:.3;transform:scale(.9)}
+      40%{opacity:1;transform:scale(1.1)}
+    }
+
     @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
     .input-row{display:flex;gap:10px;padding:12px;background:var(--panel-2);border-top:1px solid var(--border)}
     .input-row input{flex:1;padding:14px 16px;background:#1e1e1e;border:1px solid #242424;
@@ -53,12 +103,13 @@
     .send{background:var(--brand);color:#fff;border:none;border-radius:10px;
       padding:0 20px;font-weight:700;cursor:pointer}
     .send:hover{background:var(--brand-2)}
+
     @media (max-width:768px){
-      .shell{width:100%;height:100svh;height:100dvh;max-width:none;border-radius:0}
+      .shell{width:100%;height:100svh;max-width:none;border-radius:0}
       body{align-items:stretch}
     }
   </style>
-  <!-- ✅ Add Marked.js for Markdown parsing -->
+  <!-- Markdown parser -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
@@ -87,7 +138,7 @@
     <div class="chat-wrap">
       <div class="chat-box" id="messages"></div>
       <div class="input-row">
-        <input id="chatInput" type="text" placeholder="Type your message..." 
+        <input id="chatInput" type="text" placeholder="Type your message..."
                onkeydown="if(event.key==='Enter'){sendMessage()}">
         <button class="send" onclick="sendMessage()">Send</button>
       </div>
@@ -97,6 +148,14 @@
 <script>
 const AUTH_USER="user", AUTH_PASS="pass";
 const WEBHOOK_URL="https://n8n-1zv5.onrender.com/webhook/a889d2ae-2159-402f-b326-5f61e90f602e/chat";
+
+function scrollToBottom() {
+  const box = document.getElementById("messages");
+  // double RAF ensures layout is settled (useful for tall markdown/images)
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    box.scrollTop = box.scrollHeight;
+  }));
+}
 
 document.addEventListener("DOMContentLoaded",()=>{
   document.getElementById("loginUser").focus();
@@ -128,7 +187,6 @@ function appendMessage(text,who){
   const div=document.createElement("div");
   div.className="message "+(who==="user"?"user":"bot");
 
-  // ✅ For bot messages, parse markdown → HTML
   if(who==="bot"){
     div.innerHTML=marked.parse(text);
   }else{
@@ -136,7 +194,13 @@ function appendMessage(text,who){
   }
 
   box.appendChild(div);
-  box.scrollTop=box.scrollHeight;
+
+  // If markdown has images, re-scroll after they load
+  div.querySelectorAll("img").forEach(img=>{
+    img.addEventListener("load", scrollToBottom, {once:true});
+  });
+
+  scrollToBottom();
 }
 
 async function sendMessage(){
@@ -146,13 +210,13 @@ async function sendMessage(){
   appendMessage(msg,"user");
   input.value="";
 
-  // show typing bubble
+  // animated typing bubble
   const typing=document.createElement("div");
   typing.className="message bot";
-  typing.textContent="…";
+  typing.innerHTML='<div class="typing"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>';
   const box=document.getElementById("messages");
   box.appendChild(typing);
-  box.scrollTop=box.scrollHeight;
+  scrollToBottom();
 
   try {
     const res=await fetch(WEBHOOK_URL,{
